@@ -1,15 +1,19 @@
-import express, { json } from "express";
+const express = require("express");
 const app = express();
-import cors from "cors";
-import { configure, preferences } from "mercadopago";
+const cors = require("cors");
+const mercadopago = require("mercadopago");
 require("dotenv").config();
 
-configure({
+mercadopago.configure({
   access_token: process.env.ACCESS_TOKEN,
 });
 
-app.use(json());
-app.use(cors());
+app.use(express.json());
+app.use(
+  cors({
+    origin: "https://localhost:5173", // Reemplaza esto con la URL de tu frontend
+  })
+);
 
 app.get("/api/fercho", (req, res) => {
   res.send("todo ok");
@@ -30,14 +34,13 @@ app.post("/create_preference", (req, res) => {
     },
   };
 
-  preferences.create(preference).then(function (response) {
+  mercadopago.preferences.create(preference).then(function (response) {
     res.json({
       id: response.body.id,
     });
   });
 });
 
-//
 app.listen(8080, () => {
   console.log("servidor corriendo");
 });
