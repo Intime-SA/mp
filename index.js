@@ -9,11 +9,7 @@ mercadopago.configure({
 });
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://localhost:5173", // Reemplaza esto con la URL de tu frontend
-  })
-);
+app.use(cors());
 
 app.get("/api/fercho", (req, res) => {
   res.send("todo ok");
