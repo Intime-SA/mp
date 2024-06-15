@@ -19,8 +19,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://nueva-ap-pduje-vblc.vercel.app/checkout",
-      failure: "https://nueva-ap-pduje-vblc.vercel.app/login",
+      success: "https://mp.atlantics.dev/checkout",
+      failure: "https://mp.atlantics.dev/login",
       pending: "",
     },
     auto_return: "approved",
