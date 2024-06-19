@@ -124,7 +124,7 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://mp.atlantics.dev/user-orders",
+      success: "https://mp.atlantics.dev/checkout",
       failure: "https://mp.atlantics.dev/checkout-failure",
       pending: "",
     },
