@@ -31,6 +31,7 @@ app.post("/authenticate", async (req, res) => {
     authToken = response.data.token;
     console.log("Token:", authToken);
     res.status(200).json({ token: authToken });
+    return authToken;
   } catch (error) {
     console.error("Error authenticating:", error);
     res.status(500).json({ error: "Error authenticating" });
