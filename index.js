@@ -83,8 +83,7 @@ app.post("/create-checkout", async (req, res) => {
     );
     console.log(response.data.url_init);
     res.json(response.data.url_init);
-    // Redirigir al usuario a la URL devuelta por el endpoint
-    res.redirect(response.data.url_init);
+    return response.data.url_init;
   } catch (error) {
     // Manejar errores de la petición
     console.error("Error creating checkout:", error);
@@ -125,8 +124,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://mp.atlantics.dev/checkout",
-      failure: "https://mp.atlantics.dev/login",
+      success: "https://mp.atlantics.dev/user-orders",
+      failure: "https://mp.atlantics.dev/checkout-failure",
       pending: "",
     },
     auto_return: "approved",
