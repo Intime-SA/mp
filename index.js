@@ -124,8 +124,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "http://localhost:5173/checkout",
-      failure: "http://localhost:5173/checkout-failure",
+      success: "https://mp.atlantics.dev/checkout",
+      failure: "http://mp.atlantics.dev/checkout-failure",
       pending: "",
     },
     auto_return: "approved",
