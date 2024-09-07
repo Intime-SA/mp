@@ -11,31 +11,45 @@ mercadopago.configure({
 
 app.use(express.json());
 app.use(cors());
+
+// Ruta para autenticarse y obtener el token
 let authToken = "";
 
 // Ruta para autenticarse y obtener el token
 app.post("/authenticate", async (req, res) => {
-  const { email, password } = req.body;
+  // Leer email y password desde las variables de entorno
+  const email = process.env.GOCUOTAS_EMAIL;
+  const password = process.env.GOCUOTAS_PASSWORD;
 
   if (!email || !password) {
-    return res.status(400).json({ error: "Missing email or password" });
+    return res
+      .status(500)
+      .json({ error: "Server misconfiguration: Missing credentials." });
   }
 
   try {
+    // Realizar la autenticación con el servicio GoCuotas
     const response = await axios.post(
       `https://www.gocuotas.com/api_redirect/v1/authentication?email=${encodeURIComponent(
         email
       )}&password=${encodeURIComponent(password)}`
     );
 
+    // Guardar el token de autenticación sin enviarlo al cliente
     authToken = response.data.token;
-    console.log("Token:", authToken);
-    res.status(200).json({ token: authToken });
-    return authToken;
+    console.log("Token:", authToken); // Solo para depuración, puede ser eliminado en producción
+
+    // Enviar respuesta de éxito sin el token
+    res.status(200).json({ message: "Authenticated GO CUOTAS successfully." });
   } catch (error) {
     console.error("Error authenticating:", error);
     res.status(500).json({ error: "Error authenticating" });
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Ruta para iniciar el proceso de pago
@@ -124,8 +138,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://mp.atlantics.dev/checkout",
-      failure: "http://mp.atlantics.dev/checkout-failure",
+      success: "http://localhost:5173/checkout-success-mp",
+      failure: "http://localhost:5173/checkout-failure",
       pending: "",
     },
     auto_return: "approved",
