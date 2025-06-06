@@ -187,9 +187,9 @@ app.post("/mp-webhook", async (req, res) => {
 
       // Enviar la información a tu API backend
       try {
-        console.log(process.env.BACKEND_API_URL + '/payments/register', 'process.env.BACKEND_API_URL');
+        console.log(process.env.BACKEND_API_URL + '/api/payments/register', 'process.env.BACKEND_API_URL');
         const backendResponse = await axios.post(
-          process.env.BACKEND_API_URL + '/payments/register',
+          process.env.BACKEND_API_URL + '/api/payments/register',
           paymentInfo
         );
         console.log("Respuesta del backend:", backendResponse.data);
