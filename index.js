@@ -144,7 +144,7 @@ app.post("/create_preference", (req, res) => {
       mode: "not_specified",
     },
     external_reference: req.body.external_reference,
-    notification_url: process.env.MP_WEBHOOK_URL || "https://test.mayoristakaurymdp.com/mp-webhook",
+    notification_url: process.env.MP_WEBHOOK_URL,
   };
 
   console.log("Preference a crear:", JSON.stringify(preference, null, 2));
@@ -178,7 +178,6 @@ app.post("/mp-webhook", async (req, res) => {
 
       // Preparar la información del pago para enviar a tu API backend
       const paymentInfo = {
-        clientId: payment.body.payer.id,
         dateTimePayment: new Date(),
         paymentId: paymentId,
         statusPayment: payment.body.status,
