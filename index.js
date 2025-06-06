@@ -134,8 +134,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://test.mayoristakaurymdp.com/checkout-success-mp",
-      failure: "https://test.mayoristakaurymdp.com/checkout-failure",
+      success: "http://localhost:3000/pagos/success",
+      failure: "http://localhost:3000/pagos/failure",
       pending: ""
     },
     auto_return: "approved",
