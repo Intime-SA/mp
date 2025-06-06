@@ -47,11 +47,6 @@ app.post("/authenticate", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 // Ruta para iniciar el proceso de pago
 app.post("/create-checkout", async (req, res) => {
   const {
@@ -135,27 +130,99 @@ app.get("/api/fercho", (req, res) => {
 });
 
 app.post("/create_preference", (req, res) => {
+  console.log(req.body, 'req.body');
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "http://localhost:5173/checkout-success-mp",
-      failure: "http://localhost:5173/checkout-failure",
-      pending: "",
+      success: "https://test.mayoristakaurymdp.com/checkout-success-mp",
+      failure: "https://test.mayoristakaurymdp.com/checkout-failure",
+      pending: ""
     },
     auto_return: "approved",
     shipments: {
       cost: req.body.shipment_cost,
       mode: "not_specified",
     },
+    external_reference: req.body.external_reference,
+    notification_url: process.env.MP_WEBHOOK_URL || "https://test.mayoristakaurymdp.com/mp-webhook",
   };
 
-  mercadopago.preferences.create(preference).then(function (response) {
-    res.json({
-      id: response.body.id,
+  console.log("Preference a crear:", JSON.stringify(preference, null, 2));
+
+  mercadopago.preferences.create(preference)
+    .then(function (response) {
+      console.log("Respuesta de MercadoPago:", response.body);
+      res.json({
+        id: response.body.id,
+      });
+    })
+    .catch(error => {
+      console.error("Error al crear preferencia:", error);
+      res.status(500).json({ error: error.message });
     });
-  });
 });
 
-app.listen(8080, () => {
-  console.log("servidor corriendo");
+// Webhook específico para MercadoPago
+app.post("/mp-webhook", async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    
+    console.log("Webhook MP recibido:", { type, data });
+
+    if (type === "payment") {
+      const paymentId = data.id;
+      
+      // Obtener información del pago
+      const payment = await mercadopago.payment.findById(paymentId);
+      console.log("Información del pago MP:", payment.body);
+
+      // Preparar la información del pago para enviar a tu API backend
+      const paymentInfo = {
+        clientId: payment.body.payer.id,
+        dateTimePayment: new Date(),
+        paymentId: paymentId,
+        statusPayment: payment.body.status,
+        orderReference: payment.body.external_reference,
+        amount: payment.body.transaction_amount
+      };
+
+      // Enviar la información a tu API backend
+      try {
+        const backendResponse = await axios.post(
+          process.env.BACKEND_API_URL + '/payments/register',
+          paymentInfo
+        );
+        console.log("Respuesta del backend:", backendResponse.data);
+      } catch (backendError) {
+        console.error("Error al enviar información al backend:", backendError);
+        // Aquí podrías implementar un sistema de reintentos si es necesario
+      }
+
+      // Aquí puedes manejar los diferentes estados del pago
+      switch (payment.body.status) {
+        case "approved":
+          console.log("Pago MP aprobado");
+          break;
+        case "rejected":
+          console.log("Pago MP rechazado");
+          break;
+        case "pending":
+          console.log("Pago MP pendiente");
+          break;
+        default:
+          console.log("Estado no manejado:", payment.body.status);
+      }
+    }
+
+    // Siempre responder con 200 para que MercadoPago sepa que recibimos la notificación
+    res.status(200).send("OK");
+  } catch (error) {
+    console.error("Error en webhook MP:", error);
+    res.status(500).send("Error");
+  }
+});
+
+const PORT = process.env.PORT || 3003;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
