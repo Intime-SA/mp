@@ -134,8 +134,8 @@ app.post("/create_preference", (req, res) => {
   let preference = {
     items: req.body.items,
     back_urls: {
-      success: "https://test.mayoristakaurymdp.com/checkout-success-mp",
-      failure: "https://test.mayoristakaurymdp.com/checkout-failure",
+      success: `https://test.mayoristakaurymdp.com/pagos/success/${req.body.external_reference}`,
+      failure: `https://test.mayoristakaurymdp.com/pagos/failure/${req.body.external_reference}`,
       pending: ""
     },
     auto_return: "approved",
@@ -187,7 +187,7 @@ app.post("/mp-webhook", async (req, res) => {
 
       // Enviar la información a tu API backend
       try {
-        console.log(process.env.BACKEND_API_URL + '/api/payments/register', 'process.env.BACKEND_API_URL');
+        console.log(process.env.BACKEND_API_URL + '/api/payments /register', 'process.env.BACKEND_API_URL');
         const backendResponse = await axios.post(
           process.env.BACKEND_API_URL + '/api/payments/register',
           paymentInfo
